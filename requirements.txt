@@ -1,0 +1,10 @@
+torch
+torchvision
+opencv-python
+numpy
+tqdm
+scikit-learn
+matplotlib
+mediapipe
+retina-face
+ffmpeg-python
