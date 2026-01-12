@@ -9,11 +9,18 @@ class FrameDataset(Dataset):
     def __init__(self, root_dir, label):
         self.root_dir = root_dir
         self.label = label
-        self.files = [
-            os.path.join(root_dir, f)
-            for f in os.listdir(root_dir)
-            if f.endswith(".jpg")
-        ]
+        self.files = []
+
+        for video in os.listdir(root_dir):
+            video_dir = os.path.join(root_dir, video)
+
+            if not os.path.isdir(video_dir):
+                continue
+
+            for f in os.listdir(video_dir):
+                if f.endswith(".jpg"):
+                    self.files.append(os.path.join(video_dir, f))
+
 
         self.transform = transforms.Compose([
             transforms.ToTensor(),

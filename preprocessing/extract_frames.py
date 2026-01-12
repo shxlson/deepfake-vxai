@@ -110,8 +110,24 @@ def _extract_with_subprocess(video_path, out_dir, fps):
         error_msg = result.stderr.decode() if result.stderr else "Unknown error"
         raise RuntimeError(f"ffmpeg failed: {error_msg}")
 
+import os
+
 if __name__ == "__main__":
-    extract_frames(
-        "data/raw_videos/test_video.mp4",
-        "data/frames/sample/"
-    )
+    BASE_INPUT = "data/raw_videos"
+    BASE_OUTPUT = "data/frames"
+
+    for label in ["real", "fake"]:
+        in_dir = os.path.join(BASE_INPUT, label)
+        out_dir = os.path.join(BASE_OUTPUT, label)
+        os.makedirs(out_dir, exist_ok=True)
+
+        for video in os.listdir(in_dir):
+            if not video.endswith(".mp4"):
+                continue
+
+            video_path = os.path.join(in_dir, video)
+            video_name = os.path.splitext(video)[0]
+            save_dir = os.path.join(out_dir, video_name)
+
+            print(f"🎬 Extracting frames from {label}/{video}")
+            extract_frames(video_path, save_dir)

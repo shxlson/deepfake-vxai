@@ -25,13 +25,35 @@ def detect_and_crop(img_path, save_path):
 if __name__ == "__main__":
     print("🔄 Starting face detection...")
 
-    files = [f for f in os.listdir(INPUT_DIR) if f.endswith(".jpg")]
-    print(f"📸 Found {len(files)} frames")
+    BASE_INPUT = "data/frames"
+    BASE_OUTPUT = "data/faces"
 
-    for i, fname in enumerate(files):
-        print(f"➡️ Processing {i+1}/{len(files)}: {fname}")
-        in_path = os.path.join(INPUT_DIR, fname)
-        out_path = os.path.join(OUTPUT_DIR, fname)
-        detect_and_crop(in_path, out_path)
+    for label in ["real", "fake"]:
+        in_root = os.path.join(BASE_INPUT, label)
+        out_root = os.path.join(BASE_OUTPUT, label)
+        os.makedirs(out_root, exist_ok=True)
 
-    print("✅ Face detection & cropping completed")
+        videos = os.listdir(in_root)
+        print(f"📁 Processing {label} videos: {len(videos)}")
+
+        for v_idx, video in enumerate(videos):
+            in_dir = os.path.join(in_root, video)
+            out_dir = os.path.join(out_root, video)
+            os.makedirs(out_dir, exist_ok=True)
+
+            frames = [f for f in os.listdir(in_dir) if f.endswith(".jpg")]
+            print(f"🎬 [{label}] Video {v_idx+1}/{len(videos)}: {video} ({len(frames)} frames)")
+
+            for f_idx, fname in enumerate(frames):
+                print(f"   ➡️ Frame {f_idx+1}/{len(frames)}", end="\r")
+
+                detect_and_crop(
+                    os.path.join(in_dir, fname),
+                    os.path.join(out_dir, fname)
+                )
+
+            print()  # newline after video
+
+    print("✅ Face detection completed")
+
+
