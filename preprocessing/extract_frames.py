@@ -1,5 +1,7 @@
 import os
 import sys
+import argparse
+
 
 def extract_frames(video_path, out_dir, fps=5):
     os.makedirs(out_dir, exist_ok=True)
@@ -113,11 +115,26 @@ def _extract_with_subprocess(video_path, out_dir, fps):
 import os
 
 if __name__ == "__main__":
-    BASE_INPUT = "data/raw_videos"
-    BASE_OUTPUT = "data/frames"
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--phase",
+        required=True,
+        choices=["train", "test", "inference"],
+        help="Pipeline phase to run frame extraction for"
+    )
+    args = parser.parse_args()
+
+    PHASE = args.phase
+
+    BASE_INPUT = f"data/{PHASE}/raw_videos"
+    BASE_OUTPUT = f"data/{PHASE}/frames"
 
     for label in ["real", "fake"]:
         in_dir = os.path.join(BASE_INPUT, label)
+
+        if not os.path.exists(in_dir):
+            continue
+
         out_dir = os.path.join(BASE_OUTPUT, label)
         os.makedirs(out_dir, exist_ok=True)
 
@@ -129,5 +146,5 @@ if __name__ == "__main__":
             video_name = os.path.splitext(video)[0]
             save_dir = os.path.join(out_dir, video_name)
 
-            print(f"🎬 Extracting frames from {label}/{video}")
+            print(f"Extracting frames from [{PHASE}] {label}/{video}")
             extract_frames(video_path, save_dir)

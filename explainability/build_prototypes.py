@@ -10,8 +10,9 @@ model.eval()
 
 bank = PrototypeBank()
 
-real_ds = FrameDataset("data/faces/real", label=0)
-fake_ds = FrameDataset("data/faces/fake", label=1)
+real_ds = FrameDataset("data/faces/train/real", label=0)
+fake_ds = FrameDataset("data/faces/train/fake", label=1)
+
 
 def extract_embedding(img):
     with torch.no_grad():

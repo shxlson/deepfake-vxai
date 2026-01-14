@@ -1,6 +1,7 @@
 import os
 import cv2
 from retinaface import RetinaFace
+import argparse
 
 INPUT_DIR = "data/frames/sample"
 OUTPUT_DIR = "data/faces/sample"
@@ -23,18 +24,45 @@ def detect_and_crop(img_path, save_path):
 
 
 if __name__ == "__main__":
-    print("🔄 Starting face detection...")
+    import argparse
 
-    BASE_INPUT = "data/frames"
-    BASE_OUTPUT = "data/faces"
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--phase",
+        required=True,
+        choices=["train", "test", "inference"],
+        help="Pipeline phase to run face detection for"
+    )
+    args = parser.parse_args()
 
-    for label in ["real", "fake"]:
-        in_root = os.path.join(BASE_INPUT, label)
-        out_root = os.path.join(BASE_OUTPUT, label)
+    PHASE = args.phase
+
+    print(f"Starting face detection for phase: {PHASE}")
+
+    BASE_INPUT = f"data/{PHASE}/frames"
+    BASE_OUTPUT = f"data/{PHASE}/faces"
+
+    # In train/test we have labels, in inference we don't
+    if PHASE in ["train", "test"]:
+        labels = ["real", "fake"]
+    else:
+        labels = [None]
+
+    for label in labels:
+        if label is None:
+            in_root = BASE_INPUT
+            out_root = BASE_OUTPUT
+        else:
+            in_root = os.path.join(BASE_INPUT, label)
+            out_root = os.path.join(BASE_OUTPUT, label)
+
+        if not os.path.exists(in_root):
+            continue
+
         os.makedirs(out_root, exist_ok=True)
 
         videos = os.listdir(in_root)
-        print(f"📁 Processing {label} videos: {len(videos)}")
+        print(f"Processing {len(videos)} videos")
 
         for v_idx, video in enumerate(videos):
             in_dir = os.path.join(in_root, video)
@@ -42,18 +70,19 @@ if __name__ == "__main__":
             os.makedirs(out_dir, exist_ok=True)
 
             frames = [f for f in os.listdir(in_dir) if f.endswith(".jpg")]
-            print(f"🎬 [{label}] Video {v_idx+1}/{len(videos)}: {video} ({len(frames)} frames)")
+            print(f"Video {v_idx+1}/{len(videos)}: {video} ({len(frames)} frames)")
 
             for f_idx, fname in enumerate(frames):
-                print(f"   ➡️ Frame {f_idx+1}/{len(frames)}", end="\r")
+                print(f"   Frame {f_idx+1}/{len(frames)}", end="\r")
 
                 detect_and_crop(
                     os.path.join(in_dir, fname),
                     os.path.join(out_dir, fname)
                 )
 
-            print()  # newline after video
+            print()  # newline after each video
 
-    print("✅ Face detection completed")
+    print("Face detection completed")
+
 
 
